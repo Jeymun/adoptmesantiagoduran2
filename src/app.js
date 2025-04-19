@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
+// Importar Swagger
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
 // Configuración inicial
 dotenv.config(); // Carga las variables de entorno ANTES de usarlas
 
@@ -45,6 +49,29 @@ mongoose.connect(MONGO_URI, {
   console.error('🔴 Error crítico al conectar a MongoDB:', err);
   process.exit(1); // Termina la aplicación si no puede conectar
 });
+
+// Swagger Configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'AdoptMe API',
+      version: '1.0.0',
+      description: 'API documentation for the AdoptMe project',
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+      },
+    ],
+  },
+  apis: ['./src/routes/*.js'], // Ruta donde Swagger buscará las rutas documentadas
+};
+
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+// Middleware de Swagger UI para servir la documentación
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middlewares
 app.use(express.json());
